@@ -1,0 +1,15 @@
+{
+  "name": "cakexpress",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "https://github.com/mona187/cakexpress.git",
+  "author": "mona187 <monaabusharkh18@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "scripts": {
+    "start": "nodemon app.js"
+  }
+}
