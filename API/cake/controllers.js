@@ -1,42 +1,46 @@
-let cakes = require("../../cakes");
+const { Cake } = require("../../db/models");
 
-const slugify = require("slugify");
-
-exports.cakeFetch = (req, res) => {
-  res.json(cakes);
-};
-exports.deleteCake = (req, res) => {
-  const { cakeId } = req.params;
-  const foundCake = cakes.find((cake) => cake.id === +cakeId);
-
-  if (foundCake) {
-    cakes = cakes.filter((cake) => cake.id !== +cakeId);
-    res.status(204).end();
-  } else {
-    res.status(404).json({ message: "Cakes Not Found" });
+exports.fetchCake = async (cakeId, next) => {
+  try {
+    const foundCake = await Cake.findByPk(cakeId);
+    return foundCake;
+  } catch (error) {
+    next(error);
   }
 };
-exports.createCake = (req, res) => {
-  const id = cakes.length + 1;
-  const slug = slugify(req.body.name, { lower: true });
-  const newCake = {
-    id,
-    slug,
-    ...req.body,
-  };
-  cakes.push(newCake);
-  res.status(201).json(newCake);
+exports.cakeFetch = async (req, res, next) => {
+  try {
+    const cakes = await Cake.findAll({
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+
+    res.json(cakes);
+  } catch (error) {
+    next(error);
+  }
 };
-exports.updateCake = (req, res) => {
-  const { cakeId } = req.params;
-
-  const foundCake = cakes.find((cake) => cake.id === +cakeId);
-
-  if (foundCake) {
-    for (const key in req.body) foundCake[key] = req.body[key];
-    foundCake.slug = slugify(foundCake.name, { lower: true });
+exports.deleteCake = async (req, res, next) => {
+  try {
+    await req.cake.destroy();
     res.status(204).end();
-  } else {
-    res.status(404).json({ message: "Cakes Not Found" });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.createCake = async (req, res, next) => {
+  try {
+    const newCake = await Cake.create(req.body);
+
+    res.status(201).json(newCake);
+  } catch (error) {
+    next(error);
+  }
+};
+exports.updateCake = async (req, res, next) => {
+  try {
+    await req.cake.update(req.body);
+    res.status(204).end();
+  } catch (error) {
+    next(error);
   }
 };
