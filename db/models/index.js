@@ -43,4 +43,16 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+// Model Relationships
+// creates a many to one relation with Cookie
+db.Bakery.hasMany(db.Cake, {
+  foreignKey: "bakeryId",
+  allowNull: false,
+  as: "cakes",
+});
+db.Cake.belongsTo(db.Bakery, {
+  as: "bakery",
+  foreignKey: "bakeryId",
+});
+
 module.exports = db;
