@@ -29,7 +29,7 @@ exports.createBakery = async (req, res, next) => {
   try {
     if (req.file) req.body.image = `http://${req.get("host")}/${req.file.path}`;
     const newBakery = await Bakery.create(req.body);
-    // response: 201 CREATED
+
     res.status(201).json(newBakery);
   } catch (error) {
     next(error);
@@ -41,7 +41,7 @@ exports.createCake = async (req, res, next) => {
     if (req.file) req.body.image = `http://${req.get("host")}/${req.file.path}`;
     req.body.bakeryId = req.bakery.id;
     const newCake = await Cake.create(req.body);
-    // response: 201 CREATED
+
     res.status(201).json(newCake);
   } catch (error) {
     next(error);
