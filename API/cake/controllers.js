@@ -26,28 +26,36 @@ exports.cakeFetch = async (req, res, next) => {
 };
 
 exports.deleteCake = async (req, res, next) => {
-  try {
-    await req.cake.destroy();
-    res.status(204).end(); // NO CONTENT
-  } catch (error) {
-    next(error);
-  }
-};
-exports.createCake = async (req, res, next) => {
-  try {
-    if (req.file) req.body.image = `http://${req.get("host")}/${req.file.path}`;
-    const newCake = await Cake.create(req.body);
+  const foundBakery = await Bakery.findByPk(req.cake.bakeryId);
 
-    res.status(201).json(newCake);
+  try {
+    if (foundBakery.userId === req.user.id) {
+      await req.cake.destroy();
+      res.status(204).end();
+    } else {
+      const err = new Error("Unauthorized!");
+      err.status = 401;
+      return next(err);
+    }
   } catch (error) {
     next(error);
   }
 };
+
 exports.updateCake = async (req, res, next) => {
+  const foundBakery = await Bakery.findByPk(req.cake.bakeryId);
+
   try {
-    if (req.file) req.body.image = `http://${req.get("host")}/${req.file.path}`;
-    const updatedCake = await req.cake.update(req.body);
-    res.json(updatedCake);
+    if (foundBakery.userId === req.user.id) {
+      if (req.file)
+        req.body.image = `http://${req.get("host")}/${req.file.path}`;
+      const updatedCake = await req.cake.update(req.body);
+      res.json(updatedCake);
+    } else {
+      const err = new Error("Unauthorized!");
+      err.status = 401;
+      return next(err);
+    }
   } catch (error) {
     next(error);
   }

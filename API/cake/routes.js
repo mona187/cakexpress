@@ -3,19 +3,17 @@ const express = require("express");
 const {
   cakeFetch,
   deleteCake,
-  createCake,
   updateCake,
   fetchCake,
 } = require("./controllers");
 
 const multer = require("multer");
+const passport = require("passport");
 const router = express.Router();
 
-// param middleware (parameter)
 router.param("cakeId", async (req, res, next, cakeId) => {
   const cake = await fetchCake(cakeId, next);
   if (cake) {
-    // store it in req
     req.cake = cake;
     next();
   } else {
@@ -37,9 +35,18 @@ const upload = multer({ storage });
 router.get("/", cakeFetch);
 
 // Delete Route
-router.delete("/:cakeId", deleteCake);
-router.post("/", upload.single("image"), createCake);
+router.delete(
+  "/:cakeId",
+  passport.authenticate("jwt", { session: false }),
+  deleteCake
+);
+
 // Update Route
-router.put("/:cakeId", upload.single("image"), updateCake);
+router.put(
+  "/:cakeId",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  updateCake
+);
 
 module.exports = router;

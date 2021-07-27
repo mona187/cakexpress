@@ -1,12 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const passport = require("passport");
 const cakeRoutes = require("./API/cake/routes");
 const bakeryRoutes = require("./API/bakery/routes");
 const userRoutes = require("./API/user/routes.js");
+const orderRoutes = require("./API/order/routes");
+const passport = require("passport");
 
 const { localStrategy } = require("./middleware/passport");
+const { jwtStrategy } = require("./middleware/passport");
 const db = require("./db/models/index");
 
 const app = express();
@@ -15,10 +17,14 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(passport.initialize());
 passport.use(localStrategy);
+passport.use(jwtStrategy);
 // Routes
-app.use(userRoutes);
+
 app.use("/cakes", cakeRoutes);
 app.use("/bakeries", bakeryRoutes);
+app.use(orderRoutes);
+app.use(userRoutes);
+
 app.use("/media", express.static("media"));
 
 app.use((err, req, res, next) => {
@@ -35,8 +41,8 @@ const run = async () => {
   try {
     await db.sequelize.sync({ alter: true });
     console.log("Connection successful");
-    app.listen(8000, () => {
-      console.log("The application is running on localhost:8000");
+    app.listen(8001, () => {
+      console.log("The application is running on localhost:8001");
     });
   } catch (error) {
     console.error(error);
